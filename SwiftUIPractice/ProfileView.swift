@@ -11,7 +11,7 @@ struct ProfileView: View {
     
     @State private var nickname = ""
     
-    //    @State var selectedMbti = false
+    @State private var isSheetPresented = false
     
     @State var mbtiList: [String] = []
     
@@ -30,9 +30,12 @@ struct ProfileView: View {
                 .offset(y: -75)
             Spacer()
             
-            NavigationLink("완료") {
-                CompleteView()
+            Button("완료") {
+                isSheetPresented = true
             }
+            .sheet(isPresented: $isSheetPresented, content: {
+                CompleteView()
+            })
             .font(.title2)
             .frame(width: 350, height: 40)
             .foregroundStyle(.white)

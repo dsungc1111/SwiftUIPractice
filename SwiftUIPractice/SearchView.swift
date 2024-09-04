@@ -43,11 +43,8 @@ struct SearchView: View {
         
         NavigationView {
             ScrollView {
-                
                 LazyVStack(alignment: .leading) {
-                    
                     ForEach(newList, id: \.self) { item in
-                        
                         Text(item.koreanName)
                             .font(/*@START_MENU_TOKEN@*/.title/*@END_MENU_TOKEN@*/)
                     }

@@ -38,6 +38,7 @@ struct NewRandomImage: View {
         }
     }
     
+    
     func sectionTitleView(_ item: Binding<String>) -> some View {
         
         Text(item.wrappedValue)

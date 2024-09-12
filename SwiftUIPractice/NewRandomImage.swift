@@ -61,7 +61,7 @@ struct NewRandomImage: View {
                             SecondView(url: url, text: text)
                         } label: {
                             AsyncImage(url: url)
-                                .clipShape(.buttonBorder)
+                                .clipShape(Circle())
                         }
                     }
                 }
@@ -86,7 +86,7 @@ struct SecondView: View {
     var body: some View {
         VStack {
             AsyncImage(url: url)
-                .clipShape(.buttonBorder)
+                .clipShape(Circle())
                 .frame(width: 200, height: 300)
             TextField("검색하슈", text: $text)
                 .padding()

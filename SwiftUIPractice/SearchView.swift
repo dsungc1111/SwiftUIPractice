@@ -8,10 +8,6 @@
 import SwiftUI
 
 
-struct Company {
-    let name: String
-    let priority: Int
-}
 
 struct SearchView: View {
     
@@ -22,32 +18,38 @@ struct SearchView: View {
     
     @State private var myCoin = ""
 
-    @State private var isLike = false
-    
-    private var newList: Markets {
-        return text.isEmpty ? marketList : marketList.filter { $0.koreanName.contains(text)}
-    }
+    @State private var newList: Markets = []
     
     var body: some View {
-        
+        TextfieldView()
         NavigationView {
-            VStack {
-                TextfieldView()
+            ScrollView {
                 bannerView()
                 listView()
+            }
+            .task {
+                do {
+                    let result = try await UpbitAPI.fetchMArket()
+                    marketList = result
+                    newList = result
+                    myCoin = result[Int.random(in: 0..<marketList.count)].koreanName
+                } catch {
+                    
+                }
             }
         }
     }
     
     func TextfieldView() -> some View {
+        
         TextField("입력하세요", text: $text)
             .padding()
             .textFieldStyle(RoundedBorderTextFieldStyle())
-            .onSubmit {
-                print(text)
-            }
             .textInputAutocapitalization(.never)
             .disableAutocorrection(true)
+            .onSubmit {
+                newList = text.isEmpty ? newList : newList.filter { $0.koreanName.contains(text) }
+            }
     }
     
     func bannerView() -> some View {
@@ -76,43 +78,42 @@ struct SearchView: View {
     }
     
     func listView() -> some View {
-        List { // lazy하게 동작하는구나
-            ForEach(newList, id: \.self) { item in
-                HStack {
-                    NavigationLink {
-                        NavigationWrapperView(view: Coinview())
-                    } label: {
-                        HStack {
-                            Text(item.koreanName)
-                                .font(.title)
-                        }
-                    }
-                    Button(action: {
-                        isLike.toggle()
-                    }, label: {
-                        Image(systemName: isLike ? "star.fill" : "star")
-                    })
+        VStack {
+            ForEach($newList, id: \.id) { item in
+                NavigationLink {
+                    CoinListview(item: item)
+                } label: {
+                    CoinListview(item: item)
                 }
-            }
-        }
-        .listStyle(.plain)
-//        .searchable(text: $text, placement: .navigationBarDrawer, prompt: "검색검색")
-        .task {
-            do {
-                let result = try await UpbitAPI.fetchMArket()
-                marketList = result
-                myCoin = result[Int.random(in: 0..<marketList.count)].koreanName
-            } catch {
+                .buttonStyle(PlainButtonStyle())
                 
             }
         }
+
     }
 }
-
-
-struct Coinview: View {
+struct CoinListview: View {
+    
+    @Binding var item: Market
+    
     var body: some View {
-        Text("colacola")
+        HStack {
+            LazyVStack(alignment: .leading) {
+                Text(item.koreanName)
+                    .font(.title2)
+                    .bold()
+                Text(item.englishName)
+                    .foregroundStyle(.gray)
+            }
+            Spacer()
+            Button {
+                item.isLike.toggle()
+            } label: {
+                Image(systemName: item.isLike ? "star.fill" : "star")
+            }
+        }
+        .padding(.horizontal, 30)
+        .padding(.vertical, 10)
     }
 }
 
